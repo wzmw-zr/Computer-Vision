@@ -2,9 +2,9 @@
 
 ## 一、Abstract
 
-我们提出了一个深度卷积神经网络结构叫做Inception，该结构获得了在图像分类和目标检测领域的最好表现。
+我们提出了一个**深度卷积神经网络结构：Inception**，该结构获得了在图像分类和目标检测领域的最好表现。
 
-该结构的主要标志是对网络中计算资源利用的提高。通过仔细设计，我们增加了网络的深度和宽度，同时保持了计算费用不变。为了优化质量，该结构的决策基于Hebbian原则和多尺度处理的直觉。
+该结构的主要标志是对网络中**计算资源利用的提高**。通过仔细设计，我们**增加了网络的深度和宽度**，同时保持了**计算费用不变**。为了优化质量，该结构的决策基于**Hebbian原则和多尺度处理**的思想。
 
 
 
@@ -34,9 +34,18 @@
 
 尽管最大池化曾会导致准确的空间信息的丢失，和AlexNet具有相似结构的卷积网络成功应用到目标定位、检测，人脸识别等领域。
 
-受到视觉皮层(visual cortex)的神经元模型启发，Serre使用了一系列修改过的不同大小的Gabor filters来处理不同的尺度。我们使用了相似的策略。但是，Inception中的所有filter都是可学习的。此外，Inception层会重复很多次，其结果就是22层深的GoogLeNet模型。
+受到视觉皮层(visual cortex)的神经元模型启发，Serre使用了一系列**修改过的不同大小的Gabor filters来处理不同的尺度**。我们使用了相似的策略。但是，Inception中的所有filter都是可学习的。此外，Inception层会重复很多次，其结果就是22层深的GoogLeNet模型。
 
-Network-in-Network 是由 Lin提出的用来解决神经网络表示能力的一个方法，在他们的模型中，网络中增加了额外的$1\times1$的卷积层，增加了其深度。我们的架构中也深度使用了这个方法。但是，在我们的设置中，$1\times1$的卷基层有对偶目的：最重要的是，它们主要被用做维度归约模块(dimension reduction module)，用移除会限制网络大小的计算瓶颈。这允许我们能够继续增加网络深度和宽度而没有很大的性能损失。
+> 赫布理论：Cells that fire together, wire together.
+>
+> 多尺度卷积核(滤波器)：多尺度Gabor滤波器提取不同特征。
+
+**Network-in-Network** 是由 Lin提出的用来解决神经网络表示能力的一个方法，在他们的模型中，网络中增加了额外的**$1\times1$的卷积层**，增加了其深度。我们的架构中也深度使用了这个方法。但是，在我们的设置中，$1\times1$的卷基层有对偶目的：最重要的是，它们主要被用做维度归约模块(dimension reduction module)，用移除会限制网络大小的计算瓶颈。这允许我们能够继续增加网络深度和宽度而没有很大的性能损失。
+
+> NIN(Network in Network)：
+>
+> + 首个采用$1\times1$卷积的卷积神经网络，**舍弃全连接层**，大大减少网络参数。
+> + 首个采用GAP(Global Average Pooling)输出，**一张特征图池化为一个神经元**。
 
 最后，现在目标检测领域最好的算法是R-CNN。R-CNN将整体的目标检测问题分解成两个子问题：
 
@@ -89,6 +98,14 @@ Inception架构最初是作为一个案例来评估一个复杂的网络拓扑�
 
 ![](./inception module.png)
 
+>Inception Module的特点：
+>
+>1. **==多尺度。==**
+>2. **==$1\times1$卷积降维==，保持了空间维度，减少了深度**，信息融合。
+>3. $3\times3$ max pooling 保留特征图数量，进而让输出特征图通道数量增加，且用较少计算量，不过会使数据量激增，之后的计算量也会变大。因此**==使用$1\times1$卷积来减少通道数，就是压缩厚度==。**
+>
+>打破均匀分布，相关性强的特征聚集在一起。
+
 Inception架构的主要思想是考虑如何才能近似估计卷积视觉网络的最佳局部稀疏结构，并通过可用的稠密组件覆盖。注意，假设平移不变意味着我们的网络将由卷积构建模块构建。我们要做的是找到最优的局部结构然后空间上重复它。
 
 Arora建议一层层构建，其中我们应当分析最后一层的相关数据，并将它们聚集成具有高度相关性的单元组。这些聚簇形成了下一层的单元，并且和前一层的单元相连接。我们假设每个来自前面层的每个单元和输入图像的一些区域对应，并且这些单元被分组为滤波器组。在较低的层(靠近输入的层)中，相关单元会集中在局部区域。因此，我们最终会有需要集中在单个区域的聚簇，并且它们可以被下一层$1\times1$的卷积层覆盖。
@@ -114,6 +131,16 @@ Arora建议一层层构建，其中我们应当分析最后一层的相关数据
 
 
 ## 六、GoogLeNet
+
+> 三个阶段：
+>
+> + conv-pool-conv-pool 快速降低分辨率。
+> + 堆叠Inception Module。
+> + FC层分类输出。
+>
+> 堆叠使用Inception Module，达22层。
+>
+> 增加两个辅助损失，缓解梯度消失(中间层特征具有分类能力)。
 
 在ILSVRC 2014比赛上提交的是GoogleNet，一个Inception架构的实现，当时虽然有一个更深更宽的Inception网络，但是提升有限，所以没用。
 
@@ -143,13 +170,36 @@ Arora建议一层层构建，其中我们应当分析最后一层的相关数据
 
 ## 七、Training Methodology
 
-GoogLeNet 网络使用DistBelief 分布式机器学习系统训练，使用适量的模型和数据并行性。尽管只使用了基于CPU的实现，但是粗略估计表明GoogLeNet 网络可以使用一些高性能GPU在一周内训练到拟合。我们的训练使用了异步SGD，动量为0.9,修改过的学习率计划是每过8个epoch降低4%。在推理时使用Polyak平均来创造最终的模型。
+GoogLeNet 网络使用DistBelief 分布式机器学习系统训练，使用适量的模型和数据并行性。尽管只使用了基于CPU的实现，但是粗略估计表明GoogLeNet 网络可以使用一些高性能GPU在一周内训练到拟合。
+
+**学习率下降策略：**
+
+我们的训练使用了异步SGD，动量为0.9,修改过的学习率计划是**每过8个epoch降低4%**。在推理时使用Polyak平均来创造最终的模型。
 
 图像采样方法在比赛的几个月里发生了重大变化，并且已经有使用这些选项拟合的模型，有时结合了变化的超参数，比如dropout和学习率。因此很难给出确定性的的指导给多数高效的单一方法来训练这些网络。
 
 To complicate matters further, some of the models were mainly trained on smaller relative crops,others on larger ones.
 
  Still, one prescription that was verified to work very well after the competition, includes sampling of various sized patches of the image whose size is distributed evenly between 8% and 100% of the image area with aspect ratio constrained to the interval. 
+
+**数据增强**：
+
+1. 图像尺寸均匀分布在8%-100%。
+2. 长宽比在$[3/4,4/3]$之间。
+3. Photometric distortions有效，如亮度，饱和度和对比度。
+
+
+
+> 辅助损失：
+>
+> 在Inception4b和Inception4e增加两个辅助分类层，用于计算辅助损失，达到：
+>
+> 1. 增加loss回传。因为传到最后可能已经有梯度消失。
+> 2. 充当正则约束，迫使中间层特征也能具备分类能力。
+>
+> 不过辅助损失在GoogLeNet后面的版本证明没啥用。
+
+
 
 
 
@@ -158,9 +208,20 @@ To complicate matters further, some of the models were mainly trained on smaller
 
 采用的一些技术:
 
-1. 独立训练7个相同的GoogleNet模型，其初始化、学习率调整策略都一样，不同是采样方法和随机输入图片顺序。
+1. **模型融合**：独立训练7个相同的GoogleNet模型，其初始化、学习率调整策略都一样，不同是采样方法和随机输入图片顺序。
 
-2. 在测试时采用了比AlexNet更激进的裁剪方法。主要是将图片缩放到4个不同的尺寸，短边为256,288,320,352，然后取这些缩放的图片的左、中、右方块。 (in the case of portraitimages, we take the top, center and bottom squares)。对每个方块，FiveCrop，每个224 × 224，加上一个裁剪的块缩放到$224\times224$，还有镜像版本。因此一张图片会产生$4\times3\times6\times2=144$个裁剪块。
+   > 多模型比单模型精度高。
+
+2. 比AlexNet激进的**Multi-Crop**：
+
+   + 将图片缩放到4个不同的尺寸，短边为256,288,320,352。
+   + 然后取这些缩放的图片的左、中、右方块。 (in the case of portraitimages, we take the top, center and bottom squares)。
+   + 对每个方块，FiveCrop，每个224 × 224，加上一个裁剪的块缩放到$224\times224$。
+   + 还有镜像版本。
+
+   因此一张图片会产生$4\times3\times6\times2=144$个裁剪块。
+
+   > Crop越多，精度越高。
 
    We note that such aggressive cropping may not be necessary in real applications, as the benefit of more crops becomes marginal after a reasonable number of cropsare present.
 
@@ -177,6 +238,8 @@ The  ILSVRC  detection  task  is  to  produce  bounding boxes around objects in 
 + Detected  objects  count  as  correct  if  they  match  the  classof the groundtruth and their bounding boxes overlap by atleast 50% (using the Jaccard index)
 + Results are reported using the mean average precision (mAP). 
 + Additionally, the region proposal step is improved by combining  the  selective  search    approach  with  multi-box predictions for higher object bounding box recall.
+
+> 模型融合：多模型比单模型精度高。
 
 ## 十、Conclusion
 
