@@ -156,6 +156,8 @@ GoogLeNet v1在网络中的不同阶段使用了两个side-head。**移除低层
 
 我们建议另一种减少计算代价并且移除了表示瓶颈的变种。我们可以使用两个平行的步长为2的块P，C。P是池化层，C是卷积层。
 
+即，**用卷积得到一半特征图，用池化得到一半特征图。**
+
 ![](./Reduction.png)
 
 
@@ -167,6 +169,10 @@ GoogLeNet v1在网络中的不同阶段使用了两个side-head。**移除低层
 
 
 # 7. Model Regularization via Label Smoothing
+
+> 传统的one-hot编码的问题：过度自信，导致过拟合。
+>
+> 提出标签平滑，把概率为1的那一项进行衰减，避免过度自信，衰减的那部分confidence平均分配到没一个类别。
 
 Label Smoothing Regularization (LSR)：the change depicted below in ground-truth label distribution.
 
@@ -234,6 +240,8 @@ n addition, gradient clipping with threshold 2.0 was found to be useful to stabi
 
 > We have also demonstrated that high quality results can be reached with receptive field resolution as low as79×79.
 >
+> **==高效降低特征图分辨率。==**
+>
 > This might prove to be helpful in systems for detecting relatively small objects.
 
 但是，如果仅仅天真地根据输入的分辨率减小网络的大小，那么网络表现会变差。
@@ -250,7 +258,7 @@ n addition, gradient clipping with threshold 2.0 was found to be useful to stabi
 
 1. We have studied how **factorizing convolutions** and **aggressive dimension reductions** inside neural network can result in networks with relatively **low computational cost** while **maintaining high quality**. 
 
-2. We have also demonstrated that high quality results can be reached with receptive field resolution as low as79×79.
+2. We have also demonstrated that high quality results can be reached with receptive field resolution as low as 79×79.
 
    This might prove to be helpful in systems for detecting relatively small objects.
 
