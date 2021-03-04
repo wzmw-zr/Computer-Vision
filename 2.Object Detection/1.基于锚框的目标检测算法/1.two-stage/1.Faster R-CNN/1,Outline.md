@@ -167,7 +167,23 @@ A  Region  Proposal  Network  (**RPN**)  **takes  an  image (of any size) as inp
 
 <img src="./mini-network.png" style="zoom:75%;" />
 
+更具体的RPN网络结构：
+
+![](./RPN_structure.png)
+
+正负样本判定：
+
+<img src="./P_F.png" style="zoom:55%;" />
+
+
+
+![](./Proposal_layer.png)
+
+
+
 #### [1] Anchors
+
+> anchor实际上可以看作是先验边框，是根据经验人为地放置的一些边框。
 
 在每个滑动窗口位置，我们同时预测多个候选区域，这里**每个位置的最大可能候选区域数量记做k**。
 
@@ -227,9 +243,9 @@ $$
 
 + $t_i$是表示预测的bounding box的4个参数化坐标的向量， $t_i^*$是正anchor的参数化坐标的向量。
 
-+ 分类损失$L_{cls}$是两类(含目标、不含目标)的log损失函数。
++ **分类损失$L_{cls}$是两类(含目标、不含目标)的log损失函数。**
 
-+ 回归损失$L_{reg}(t_i,t_i^*)=R(t_i-t_i^*)$，这里$R$是robust loss如smooth L1。
++ **回归损失**$L_{reg}(t_i,t_i^*)=R(t_i-t_i^*)$，这里$R$是robust loss如**smooth L1**。
 
 + $p_i^*L_{reg}$意味着regression loss只在正anchor处激活，否则不被激活。
 
@@ -251,6 +267,10 @@ $$
 $x,x_a,x^*$表示predicted box, anchor box, ground truth box的。
 
 这可以认为是**从一个anchor box到附近ground truth box的bounding box regression**。
+
+> 也就是学习anchor如何偏移到predict box，ground truth bounding box，**前4个公式与预测相关，后4个公式与监督相关**。
+
+
 
 > Faster R-CNN使用和之前基于ROI的方法不同的方式获得bounding box regression。
 >
@@ -285,6 +305,8 @@ RPN使用SGD训练。遵循Fast R-CNN的“图像中心”采样策略来训练R
 > 前60K mini-batch，学习率0.001, 接下来的20K mini-batch， 学习率0.0001.
 >
 > momentum 0.9, weight decay 0.0005.
+
+> **在RPN里，会将anchor进行二分类**：包含物体的前景，不包含物体的背景。
 
 
 
